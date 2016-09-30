@@ -81,9 +81,18 @@ class PostText(tornado.web.RequestHandler):
 
 
                 self.set_status(200)
+                result = [
+                    {"sentence": "I will become what i deserve", "sentiment":
+                        "positive", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
+                    {"sentence": "I think therefore i am", "sentiment":
+                        "neutral", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
+                    {"sentence": "I want to go to paris and do somwthing worth mentioing in my later life", "sentiment":
+                        "positive", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
+                    ]
+                    
                 self.write({"success": True, 
                             "error": False,
-                            "result": "Hit hai, Hit Hai"
+                            "result": result,
                             })
                 self.finish()
                 return
