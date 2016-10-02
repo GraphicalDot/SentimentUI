@@ -21,7 +21,7 @@ from Sentence_Tokenization import SentenceTokenizationOnRegexOnInterjections
 from nltk.stem import SnowballStemmer 
 from PreProcessingText import PreProcessText
 from sklearn.feature_extraction.text import CountVectorizer 
-
+from cPickle import dump, load, HIGHEST_PROTOCOL
 
 Terminal = blessings.Terminal()
 
@@ -181,59 +181,43 @@ if __name__ == "__main__":
 
 
         with cd(ServiceClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(ServiceFeatureFileName, "rb"):
-                        service_features = cPickle.load(ServiceFeatureFileName)
-                with open(ServiceVocabularyFileName, "rb"):
-                        service_vocabulary = cPickle.load(ServiceVocabularyFileName)
-                with open(ServiceClassifierFileName, "rb"):
-                        service_classifier= cPickle.load(ServiceClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Service) 
+                        service_features =  load(open(ServiceFeatureFileName, 'rb'))
+                        service_vocabulary = load(open(ServiceVocabularyFileName, 'rb'))
+                        service_classifier= load(open(ServiceClassifierFileName, 'rb'))
+
+        
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Service") 
         
         with cd(SentimentClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(SentimentClassifierFileName, "rb"):
-                        sentiment_features = cPickle.load(SentimentFeatureFileName)
-                with open(SentimentVocabularyFileName, "rb"):
-                        sentiment_vocabulary = cPickle.load(SentimentVocabularyFileName)
-                with open(SentimentClassifierFileName, "rb"):
-                        sentiment_classifier= cPickle.load(SentimentClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Sentiment) 
+                        sentiment_features =  load(open(SentimentFeatureFileName, 'rb'))
+                        service_vocabulary = load(open(SentimentVocabularyFileName, 'rb'))
+                        service_classifier= load(open(SentimentClassifierFileName, 'rb'))
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Sentiment") 
         
         
         with cd(TagClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(TagFeatureFileName, "rb"):
-                        tag_features = cPickle.load(TagFeatureFileName)
-                with open(ServiceVocabularyFileName, "rb"):
-                        tag_vocabulary = cPickle.load(TagVocabularyFileName)
-                with open(TagClassifierFileName, "rb"):
-                        tag_classifier= cPickle.load(TagClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Tag) 
+                        tag_features =  load(open(TagFeatureFileName, 'rb'))
+                        tag_vocabulary = load(open(TagVocabularyFileName, 'rb'))
+                        tag_classifier= load(open(TagClassifierFileName, 'rb'))
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Tag") 
         
         with cd(FoodClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(FoodFeatureFileName, "rb"):
-                        food_features = cPickle.load(FoodFeatureFileName)
-                with open(FoodVocabularyFileName, "rb"):
-                        food_vocabulary = cPickle.load(FoodVocabularyFileName)
-                with open(FoodClassifierFileName, "rb"):
-                        food_classifier= cPickle.load(FoodClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Food) 
+                        food_features =  load(open(FoodFeatureFileName, 'rb'))
+                        food_vocabulary = load(open(FoodVocabularyFileName, 'rb'))
+                        food_classifier= load(open(FoodClassifierFileName, 'rb'))
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Food") 
         
         with cd(CostClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(CostFeatureFileName, "rb"):
-                        cost_features = cPickle.load(CostFeatureFileName)
-                with open(CostVocabularyFileName, "rb"):
-                        cost_vocabulary = cPickle.load(CostVocabularyFileName)
-                with open(CostClassifierFileName, "rb"):
-                        cost_classifier= cPickle.load(CostClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Cost) 
+                        cost_features =  load(open(CostFeatureFileName, 'rb'))
+                        cost_vocabulary = load(open(CostVocabularyFileName, 'rb'))
+                        cost_classifier= load(open(CostClassifierFileName, 'rb'))
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Cost") 
         
         with cd(AmbienceClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                with open(AmbienceFeatureFileName, "rb"):
-                        ambience_features = cPickle.load(AmbienceFeatureFileName)
-                with open(AmbienceVocabularyFileName, "rb"):
-                        ambience_vocabulary = cPickle.load(AmbienceVocabularyFileName)
-                with open(AmbienceClassifierFileName, "rb"):
-                        ambience_classifier= cPickle.load(AmbienceClassifierFileName)
-        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%Ambience) 
+                        ambience_features =  load(open(AmbienceFeatureFileName, 'rb'))
+                        ambience_vocabulary = load(open(AmbienceVocabularyFileName, 'rb'))
+                        ambience_classifier= load(open(AmbienceClassifierFileName, 'rb'))
+        print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Ambience") 
 
 
         main()
