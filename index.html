@@ -27,9 +27,20 @@
 </head>
 
 <body>
+		<script type="text/template" id="nounPhraseTemplate">
+        <div class="row">
+        			<div class="col s6 m6">
+            					<p class="#455a64 blue-grey darken-2" style="font-size: 20px">
+			            									Noun Phrase: {{title}}
+
+													</p>
+        			</div>
+      </div>		
+
+		</script>
 		<script type="text/template" id="perSentenceTemplate">
     <div class="row" style="{color: black}">
-    					<form class="col s12">
+    					<form class="col s12" style="text: black; font-weight: bold">
       						<div class="row">
         							<div class="input-field col s6">
                           <input disabled value="{{sentence}}" type="text" class="validate">
@@ -44,12 +55,6 @@
                           <input disabled value="{{sub_category}}"  type="text" class="validate">
         						</div>
       					</div>
-			
-								<div class="row">
-        						<div class="input-field col s12">
-                        <input disabled value="{{noun_phrases}}" type="text" class="validate">
-        					</div>
-      						</div>
 						</form>
  				 </div>
       
@@ -101,7 +106,7 @@
                                         </ul>
 															</div>
 					
-															<div class="row col s12"><a class="waves-effect waves-light btn #455a64 blue-grey darken-2 textsubmit">button</a>  
+															<div class="row col s12"><a class="waves-effect waves-light btn #455a64 blue-grey darken-2 textsubmit">Submit</a>  
 															</div>
 													</div>
       								</div>

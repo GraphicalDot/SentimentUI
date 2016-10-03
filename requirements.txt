@@ -2,10 +2,14 @@ backports-abc==0.4
 blessings==1.6
 certifi==2016.9.26
 futures==3.0.5
+nltk==3.2.1
 numpy==1.11.1
 pymongo==3.3.0
-scikit-learn==0.18
+scikit-learn==0.17.1
 scipy==0.18.1
 singledispatch==3.4.0.3
 six==1.10.0
+text-sentence==0.14
+topia.termextract==1.1.0
 tornado==4.4.1
+zope.interface==4.3.2

@@ -31,14 +31,21 @@ App.RootView = Backbone.View.extend({
 			
       textSubmit: function(e){
             e.preventDefault();
-            console.log("Jhandu balm");
+            this.$("#sentences").html('<div class="progress #455a64 blue-grey darken-2"><div class="indeterminate"></div></div>')
 						var text = $(".textProcessing").val();
 
 						var jqhr = $.post(window.URL, {"text": text})
 						jqhr.done(function(data){
 									if (data.success == true){
-													var subView = new App.IntermediatePerSentenceView({"model": data.result})
-                                  self.$("#sentences").html(subView.render().el);
+													
+                          self.$("#sentences").html("")     
+                          $.each(data.noun_phrases, function(index, title){
+										              var subView = new App.CardView({model: {"title": title}});
+                                self.$("#sentences").append(subView.render().el)            
+                            })
+                          var subView = new App.IntermediatePerSentenceView({"model": data.result})
+                                  self.$("#sentences").append(subView.render().el);
+                    
                           //var subView = new App.PerSentenceView({model: {"result": data.result, "sentence": sentence, "grams": grams, parent: self}});
 													//self.$el.after(subView.render().el);
                    }
@@ -59,6 +66,25 @@ App.RootView = Backbone.View.extend({
 
 
 });
+
+App.CardView = Backbone.View.extend({
+        //meant for each noun phrase and place name
+        tagName: "div",
+        className: "row",
+        template: $("#nounPhraseTemplate").html(),
+        initialize: function(options){
+              this.model = options.model;
+              console.log(this.model) ;
+        }, 
+
+        render: function(){
+              var self = this;
+              this.$el.html(Mustache.to_html(this.template, self.model));
+              return this;
+        },
+
+});
+
 
 App.IntermediatePerSentenceView = Backbone.View.extend({
         tagName: "ul",

@@ -22,7 +22,9 @@ from nltk.stem import SnowballStemmer
 from PreProcessingText import PreProcessText
 from sklearn.feature_extraction.text import CountVectorizer 
 from cPickle import dump, load, HIGHEST_PROTOCOL
-
+from sklearn.externals import joblib
+from topia.termextract import extract  
+from textblob import TextBlob
 Terminal = blessings.Terminal()
 
 file_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +41,7 @@ from configs import FoodVocabularyFileName, FoodFeatureFileName, FoodClassifierF
 from configs import ServiceVocabularyFileName, ServiceFeatureFileName, ServiceClassifierFileName
 from configs import CostVocabularyFileName, CostFeatureFileName, CostClassifierFileName
 from configs import AmbienceVocabularyFileName, AmbienceFeatureFileName, AmbienceClassifierFileName
-
+from configs import tags
 
 
 from configs import cd
@@ -72,13 +74,30 @@ def print_execution(func):
 
 
 
-def prediction(data, classifier, vocabulary, features):
+def prediction(sentences, vocabulary, features, classifier):
+                print sentences
                 loaded_vectorizer= CountVectorizer(vocabulary=vocabulary) 
+                
                 sentences_counts = loaded_vectorizer.transform(sentences)
+                
                 reduced_features = features.transform(sentences_counts.toarray())
+                         
                 predictions = classifier.predict(reduced_features)
-                return zip(sentences, predictions)
+                print predictions
+                return predictions
 
+
+
+def filter_categories(sentences):
+        """
+        These sentences will be in the form (sentence, tag, sentiment)
+        """
+        tags = set([tag for (sentence, tag, sentiment) in sentences])
+        result = dict()
+        for tag in tags:
+                result.update({tag: [e for e in sentences if e[1]==tag]})
+
+        return result
 
 
 
@@ -109,20 +128,103 @@ class PostText(tornado.web.RequestHandler):
                         return 
 
 
+                
+                tokenized_sentences = sent_tokenizer.tokenize(text)
+                #predicting tags
+                tags = prediction(tokenized_sentences, tag_vocabulary, tag_features, tag_classifier)
+                sentiments = prediction(tokenized_sentences, sentiment_vocabulary, sentiment_features, sentiment_classifier)
+
+                result = filter_categories(zip(tokenized_sentences, tags,
+                    sentiments))
+
+                overall_result = list() 
+
+
+
+                some_lambda= lambda ((sentence, category, sentiment), sub): (sentence, category, sentiment, sub) 
+                other_categories = lambda (sentence, category, sentiment): (sentence, category, sentiment, None)
+                
+                if result.get("food"):
+                        food_sentences = [sentence for (sentence, category, sentiment) in result["food"]]
+                        food_subs = prediction(food_sentences, food_vocabulary,
+                                food_features, food_classifier)
+
+                        __text = " ".join(food_sentences)
+                        tb_nps = TextBlob(__text)
+                        topia_nps = [np[0] for np in extractor(__text)]
+                        nps = list(set.union(set(tb_nps.noun_phrases), set(topia_nps)))
+
+                        food_result = map(some_lambda, zip(result["food"], food_subs))
+                        overall_result.extend(food_result)
+        
+
+                if result.get("service"):
+                        service_sentences = [sentence for (sentence, category,
+                            sentiment) in result["service"]]
+                        service_subs = prediction(service_sentences,
+                                service_vocabulary, service_features, service_classifier)
+                        service_result = map(some_lambda, zip(result["service"], service_subs))
+                        overall_result.extend(service_result)
+
+                if result.get("cost"):
+                        cost_sentences = [sentence for (sentence, category,
+                            sentiment) in result["cost"]]
+                        cost_subs = prediction(cost_sentences, cost_vocabulary,
+                                cost_features, cost_classifier)
+                        cost_result = map(some_lambda, zip(result["cost"], cost_subs))
+                        overall_result.extend(cost_result)
+
+
+                if result.get("ambience"):
+                        ambience_sentences = [sentence for (sentence, category,
+                            sentiment) in result["ambience"]]
+                        ambience_subs = prediction(ambience_sentences,
+                                ambience_vocabulary, ambience_features,
+                                ambience_classifier)
+                        ambience_result = map(some_lambda,
+                                zip(result["ambience"], ambience_subs))
+                        overall_result.extend(ambience_result)
+
+                if result.get("menu"):
+                        menu_result = map(other_categories, result["menu"])
+                        overall_result.extend(food_result)
+
+                if result.get("place"):
+                        place_result = map(other_categories, result["place"])
+                        overall_result.extend(place_result)
+                
+                if result.get("overall"):
+                        verall_result = map(other_categories, result["overall"])
+                        overall_result.extend(verall_result)
+                
+                if result.get("cuisine"):
+                        cuisine_result = map(other_categories, result["cuisine"])
+                        overall_result.extend(cuisine_result)
+                
+                if result.get("null"):
+                        null_result = map(other_categories, result["null"])
+                        overall_result.extend(null_result)
+                        
+                            
+
+                make_json = lambda (sentence, category, sentiment, sub): {"sentence": sentence, "category":
+                                category, "sentiment": sentiment, "sub_category": sub}
+
+
+
+                result = map(make_json, overall_result)
+                try:
+                        noun_phrases = nps
+                except Exception as e:
+                        noun_phrases = None
+
 
                 self.set_status(200)
-                result = [
-                    {"sentence": "I will become what i deserve", "sentiment":
-                        "positive", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
-                    {"sentence": "I think therefore i am", "sentiment":
-                        "neutral", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
-                    {"sentence": "I want to go to paris and do somwthing worth mentioing in my later life", "sentiment":
-                        "positive", "category": "food", "sub_category": "dishes", "noun_phrases": ["deserver", "delhi", "noida", "banoffie pie"]},
-                    ]
-                    
+                print result 
                 self.write({"success": True, 
                             "error": False,
                             "result": result,
+                            "noun_phrases": noun_phrases, 
                             })
                 self.finish()
                 return
@@ -151,8 +253,8 @@ def stopTornado():
 def main():
         http_server = tornado.httpserver.HTTPServer(Application())
         http_server.bind("8000")
-        http_server.start(20)
-        enable_pretty_logging()
+        http_server.start()
+        #enable_pretty_logging()
         print Terminal.green("Server is started at localhost and running at post 8000")
         tornado.ioloop.IOLoop.instance().start()
 
@@ -181,45 +283,47 @@ if __name__ == "__main__":
 
 
         with cd(ServiceClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        service_features =  load(open(ServiceFeatureFileName, 'rb'))
-                        service_vocabulary = load(open(ServiceVocabularyFileName, 'rb'))
-                        service_classifier= load(open(ServiceClassifierFileName, 'rb'))
+                        service_features =  joblib.load(ServiceFeatureFileName)
+                        service_vocabulary = joblib.load(ServiceVocabularyFileName)
+                        service_classifier= joblib.load(ServiceClassifierFileName)
 
         
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Service") 
         
         with cd(SentimentClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        sentiment_features =  load(open(SentimentFeatureFileName, 'rb'))
-                        service_vocabulary = load(open(SentimentVocabularyFileName, 'rb'))
-                        service_classifier= load(open(SentimentClassifierFileName, 'rb'))
+                        sentiment_features =  joblib.load(SentimentFeatureFileName)
+                        sentiment_vocabulary = joblib.load(SentimentVocabularyFileName)
+                        sentiment_classifier= joblib.load(SentimentClassifierFileName)
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Sentiment") 
         
         
         with cd(TagClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        tag_features =  load(open(TagFeatureFileName, 'rb'))
-                        tag_vocabulary = load(open(TagVocabularyFileName, 'rb'))
-                        tag_classifier= load(open(TagClassifierFileName, 'rb'))
+                        tag_features =  joblib.load(TagFeatureFileName)
+                        tag_vocabulary = joblib.load(TagVocabularyFileName)
+                        tag_classifier= joblib.load(TagClassifierFileName)
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Tag") 
         
         with cd(FoodClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        food_features =  load(open(FoodFeatureFileName, 'rb'))
-                        food_vocabulary = load(open(FoodVocabularyFileName, 'rb'))
-                        food_classifier= load(open(FoodClassifierFileName, 'rb'))
+                        food_features =  joblib.load(FoodFeatureFileName)
+                        food_vocabulary = joblib.load(FoodVocabularyFileName)
+                        food_classifier= joblib.load(FoodClassifierFileName)
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Food") 
         
         with cd(CostClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        cost_features =  load(open(CostFeatureFileName, 'rb'))
-                        cost_vocabulary = load(open(CostVocabularyFileName, 'rb'))
-                        cost_classifier= load(open(CostClassifierFileName, 'rb'))
+                        cost_features =  joblib.load(CostFeatureFileName)
+                        cost_vocabulary = joblib.load(CostVocabularyFileName)
+                        cost_classifier= joblib.load(CostClassifierFileName)
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Cost") 
         
         with cd(AmbienceClassifiersPath(PATH_COMPILED_CLASSIFIERS)):
-                        ambience_features =  load(open(AmbienceFeatureFileName, 'rb'))
-                        ambience_vocabulary = load(open(AmbienceVocabularyFileName, 'rb'))
-                        ambience_classifier= load(open(AmbienceClassifierFileName, 'rb'))
+                        ambience_features =  joblib.load(AmbienceFeatureFileName)
+                        ambience_vocabulary = joblib.load(AmbienceVocabularyFileName)
+                        ambience_classifier= joblib.load(AmbienceClassifierFileName)
         print Terminal.green("<<%s>> classifiers and vocabulary loaded"%"Ambience") 
 
-
+        sent_tokenizer  = SentenceTokenizationOnRegexOnInterjections()
+        print Terminal.green("Sentence Tokenizer has been initialized") 
+        extractor = extract.TermExtractor()
         main()
 
 
