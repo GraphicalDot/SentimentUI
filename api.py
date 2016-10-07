@@ -41,12 +41,59 @@ from configs import FoodVocabularyFileName, FoodFeatureFileName, FoodClassifierF
 from configs import ServiceVocabularyFileName, ServiceFeatureFileName, ServiceClassifierFileName
 from configs import CostVocabularyFileName, CostFeatureFileName, CostClassifierFileName
 from configs import AmbienceVocabularyFileName, AmbienceFeatureFileName, AmbienceClassifierFileName
-from configs import tags
+from configs import tags, corenlp_data
 
 
 from configs import cd
 import cPickle
 
+
+import sys
+import jsonrpc
+corenlpserver = jsonrpc.ServerProxy(jsonrpc.JsonRpc20(),
+                jsonrpc.TransportTcpIp(addr=(corenlp_data["ip"],
+                corenlp_data["port"])))
+
+
+def find_places(sentence):
+        def filter_places(__list):
+                location_list = list()
+                i = 0
+                for __tuple in __list:
+                        if __tuple[1] == "LOCATION":
+                                location_list.append([__tuple[0], i])
+                                i += 1
+
+
+                i = 0
+                try:
+                        new_location_list = list()
+                        [first_element, i] = location_list.pop(0)
+                        new_location_list.append([first_element])
+                        for element in location_list:
+                                if i == element[1] -1:
+                                        new_location_list[-1].append(element[0])
+
+                                else:
+                                        new_location_list.append([element[0]])
+                                i = element[1]
+
+                        return list(set([" ".join(element) for element in new_location_list]))
+                except Exception as e:
+                        return None
+
+
+        try:
+                result = loads(corenlpserver.parse(sentence))
+                __result = [(e[0], e[1].get("NamedEntityTag")) for e in result["sentences"][0]["words"]]
+                place_name = filter_places(__result)
+                print "%s in %s"%(place_name, sentence)
+
+        except Exception as e:
+                print e, "__extract_place", sentence
+                place_name = []
+
+        return place_name
 
 def cors(f):
         @wraps(f) # to preserve name, docstring, etc.
@@ -127,13 +174,17 @@ class PostText(tornado.web.RequestHandler):
                         self.finish()
                         return 
 
-
+                places = list()
                 
                 tokenized_sentences = sent_tokenizer.tokenize(text)
                 #predicting tags
                 tags = prediction(tokenized_sentences, tag_vocabulary, tag_features, tag_classifier)
                 sentiments = prediction(tokenized_sentences, sentiment_vocabulary, sentiment_features, sentiment_classifier)
 
+
+                #Result will be in the form of dict with each key represents
+                # a category and each category will then have a list of sentence
+                #tag sentiment in it
                 result = filter_categories(zip(tokenized_sentences, tags,
                     sentiments))
 
@@ -192,7 +243,15 @@ class PostText(tornado.web.RequestHandler):
                 if result.get("place"):
                         place_result = map(other_categories, result["place"])
                         overall_result.extend(place_result)
-                
+                        for (sent, _, _, _) in place_result:
+                            try:
+                                    places.append(find_places(sent))
+                            except Exception as e:
+                                    print e
+                                    print "Coprenlp server is not running, so\
+                                            something about it dude!"
+
+
                 if result.get("overall"):
                         verall_result = map(other_categories, result["overall"])
                         overall_result.extend(verall_result)
@@ -220,10 +279,13 @@ class PostText(tornado.web.RequestHandler):
 
 
                 self.set_status(200)
-                print result 
+                print result
+                print noun_phrases
+                print places
                 self.write({"success": True, 
                             "error": False,
                             "result": result,
+                            "places": filter(None, places),
                             "noun_phrases": noun_phrases, 
                             })
                 self.finish()

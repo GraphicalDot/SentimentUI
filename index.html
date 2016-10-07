@@ -15,78 +15,109 @@
 
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Tillana|Pacifico" rel="stylesheet">
-  <script src="js/libs/jquery.js" type="text/javascript"></script>    
+  <script src="js/libs/jquery.js" type="text/javascript"></script>
   <script src="js/libs/underscore.js" type="text/javascript"></script>
   <script src="js/libs/backbone.js" type="text/javascript"></script>
   <script src="js/libs/newsentimentui.js" type="text/javascript"></script>
   <script src="js/libs/materialize.min.js" type="text/javascript"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.js" type="text/javascript"></script>
-  
-  <link rel="stylesheet" href="css/materialize.min.css"> 
+	<style media="screen">
+		p,input,label,h6,h2,a,h4,textarea {
+			font-family: 'Product Sans',Arial,sans-serif; color:#888B8D;
+		}
+
+		/*on hover effect on item div*/
+		div.shadow:hover {
+		-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		}
+	</style>
+  <link rel="stylesheet" href="css/materialize.min.css">
 
 </head>
 
 <body>
 		<script type="text/template" id="nounPhraseTemplate">
-        <div class="row">
         			<div class="col s6 m6">
-            					<p class="#455a64 blue-grey darken-2" style="font-size: 20px">
+            					<p class="#455a64 green-grey darken-2" style="font-size: 20px">
 			            									Noun Phrase: {{title}}
 
 													</p>
         			</div>
-      </div>		
 
 		</script>
+
 		<script type="text/template" id="perSentenceTemplate">
-    <div class="row" style="{color: black}">
-    					<form class="col s12" style="text: black; font-weight: bold">
+			<table>
+        <thead>
+          <tr>
+              <th>Sentence</th>
+              <th>Sentiment</th>
+              <th>Category</th>
+              <th>Sub Category</th>
+          </tr>
+        </thead>
+
+        <tbody>
+					{{#result}}
+					<tr>
+            <td>{{sentence}}</td>
+            <td>{{sentiment}}</td>
+            <td>{{category}}</td>
+            <td>{{sub_category}}</td>
+          </tr>
+					{{/result}}
+        </tbody>
+      </table>
+    <!-- <div class="row" style="{color: black}">
+    					<form class="col s12">
       						<div class="row">
         							<div class="input-field col s6">
-                          <input disabled value="{{sentence}}" type="text" class="validate">
+                          <p>{{sentence}}</p>
         						</div>
         						<div class="input-field col s2">
-                          <input disabled value="{{sentiment}}" type="text" class="validate">
+                        <p>{{sentiment}}</p>
         						</div>
         						<div class="input-field col s2">
-                          <input disabled value="{{category}}" type="text" class="validate">
+                          <p>{{category}}</p>
         						</div>
         						<div class="input-field col s2">
-                          <input disabled value="{{sub_category}}"  type="text" class="validate">
+                          <p>
+														{{sub_category}}
+													</p>
         						</div>
       					</div>
 						</form>
- 				 </div>
-      
+ 				 </div> -->
+
 		</script>
-
-
-
-
 
 		<script type="text/template" id="bodytemplate">
 
 							<div class="row">
-									<h2 class="heading-text" style="font-family: 'Pacifico', cursive;">Houzier Demo 1.0</h2>
-									<h6 class="heading-text" style="font-family: 'Tillana', cursive;" >Backend algorithms engine which powers our food engine for eateries and food recoomendation, as a start.</h6>
-									<h6 class="heading-text" style="font-family: 'Tillana',cursive;" >Right now, The algorithms are suited only for reviews from the food domain, but soon will be universal .</h6>
-									<h6 class="heading-text" style="font-family: 'Tillana', cursive;" >This demo is based on a very small dataset of about 5000 sentences from social media, because of the limited computational resource we have,  we could only get our hands dirty with suppost vector machines and ensemble methods alongwith our patented algorithms for natural language processing. </h6>
-									<h6 class="heading-text" style="font-family: 'Tillana', cursive;" >We are looking for investment in the order of $1 million dollars to get our hands on deep learning with language philosophy that we have developed at houzier.</h6>
-									<h6 class="heading-text" style="font-family: 'Tillana', cursive;" >All the work have been done by two developers.</h6>
-									<h6 class="heading-text" style="font-family: 'Tillana', cursive;" >To checkout more, checkout food.houzier.com, which is still in development phase.</h6>
+									<h2 class="heading-text">Houzier Demo 1.0</h2>
+									<h6 class="heading-text">Backend algorithms engine which powers our food engine for eateries and food recoomendation, as a start.</h6>
+									<h6 class="heading-text">Right now, The algorithms are suited only for reviews from the food domain, but soon will be universal .</h6>
+									<h6 class="heading-text">This demo is based on a very small dataset of about 5000 sentences from social media, because of the limited computational resource we have,  we could only get our hands dirty with suppost vector machines and ensemble methods alongwith our patented algorithms for natural language processing. </h6>
+									<h6 class="heading-text">We are looking for investment in the order of $1 million dollars to get our hands on deep learning with language philosophy that we have developed at houzier.</h6>
+									<h6 class="heading-text">All the work have been done by two developers.</h6>
+									<h6 class="heading-text">To checkout more, checkout food.houzier.com, which is still in development phase.</h6>
 							</div>
-							<div class="row">	 
-									<nav>
-    									<div class="nav-wrapper #455a64 blue-grey darken-2">
+							<!-- Strip on form  -->
+							<div class="row">
+								<hr style="margin:1% 0 5% 0;">
+									<!-- <nav>
+    									<div class="nav-wrapper #455a64 darken-2">
       										<ul id="nav-mobile" class="right hide-on-med-and-down">
 													</ul>
     									</div>
-  								</nav>
+  								</nav> -->
 							</div>
 
-
-        
-							<div class="row" style="font-family: 'Tillana', cursive;">
+							<div clas="row" id="progress" style="font-family: 'Product Sans',Arial,sans-serif; color:#888B8D;">
+			        </div>
+							<div class="row" style="font-family: 'Product Sans',Arial,sans-serif; color:#888B8D;">
     							<form class="col s12">
       								<div class="row">
 													<div class="col s9">
@@ -94,28 +125,27 @@
 																		<textarea id="icon_prefix2" class="materialize-textarea  textProcessing"></textarea>
           													<label for="icon_prefix2">Please enter any review</label>
         											</div>
-													</div>	
+													</div>
 													<div class="col s3">
-															<div class="row col s12" style="margin-top: 0px">
+															<!-- <div class="row col s12" style="margin-top: 0px">
 																	 <a class='dropdown-button btn #455a64 blue-grey darken-2' data-activates='classifiers'>Drop Me!</a>
-																				<!-- Dropdown Structure -->
                                         <ul id='classifiers' class='dropdown-content'>
                                             <li><a>one</a></li>
                                             <li><a>two</a></li>
                                             <li><a>three</a></li>
                                         </ul>
-															</div>
-					
-															<div class="row col s12"><a class="waves-effect waves-light btn #455a64 blue-grey darken-2 textsubmit">Submit</a>  
+															</div> -->
+
+															<div class="row col s12"><a class="waves-effect waves-light btn #455a64 blue-grey darken-2 textsubmit">Submit</a>
 															</div>
 													</div>
       								</div>
     							</form>
   						</div>
 
-				<div clas="row" id="sentences" style="font-family: 'Tillana', cursive;">
+				<div clas="row" id="sentences" style="font-family: 'Product Sans',Arial,sans-serif; color:#888B8D;">
         </div>
-		</script>	
+		</script>
 		<div class="container" id="main-container">
 				<!-- Every stuff goes here dude! -->
 		</div>
@@ -123,8 +153,8 @@
     <script src="js/router.js"></script>
     <script src="js/main.js"></script>
     <!-- <script src="js/for_one_page.js"></script> -->
-    
-    <script>$(function() {App.boot($('#main-container')); });</script> 
+
+    <script>$(function() {App.boot($('#main-container')); });</script>
 
 </body>
 

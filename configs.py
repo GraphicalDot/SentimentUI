@@ -14,6 +14,12 @@ class cd:
 
 
 
+corenlp_data = dict(
+        ip = "localhost",
+        port = 3456,
+)
+
+
 
 SentimentClassifiersPath = lambda base_dir:  "%s/CompiledModels/SentimentClassifiers"%base_dir
 TagClassifiersPath = lambda base_dir: "%s/CompiledModels/TagClassifiers"%base_dir
@@ -24,30 +30,29 @@ CostClassifiersPath = lambda base_dir : "%s/CompiledModels/CostClassifiers"%base
 
 
 
-SentimentVocabularyFileName = "lk_vectorizer_sentiment.pkl"
-SentimentFeatureFileName = "sentiment_features.pkl"
-SentimentClassifierFileName = "svmlk_sentiment_classifier.pkl"
+SentimentVocabularyFileName = "lk_vectorizer_sentiment.joblib"
+SentimentFeatureFileName = "sentiment_features.joblib"
+SentimentClassifierFileName = "svmlk_sentiment_classifier.joblib"
 
-TagVocabularyFileName = "lk_vectorizer_tag.pkl"
-TagFeatureFileName = "tag_features_pca_selectkbest.pkl"
-TagClassifierFileName = "svmlk_tag_classifier.pkl"
+TagVocabularyFileName = "lk_vectorizer_tag.joblib"
+TagFeatureFileName = "tag_features_pca_selectkbest.joblib"
+TagClassifierFileName = "svmlk_tag_classifier.joblib"
 
-FoodVocabularyFileName = "lk_vectorizer_food.pkl"
-FoodFeatureFileName = "food_features_pca_selectkbest.pkl"
-FoodClassifierFileName = "svmlk_food_classifier.pkl" 
+FoodVocabularyFileName = "lk_vectorizer_food.joblib"
+FoodFeatureFileName = "food_features_pca_selectkbest.joblib"
+FoodClassifierFileName = "svmlk_food_classifier.joblib"
 
-ServiceVocabularyFileName =  "lk_vectorizer_service.pkl"
-ServiceFeatureFileName = "service_features_pca_selectkbest.pkl"
-ServiceClassifierFileName = "svmlk_service_classifier.pkl"
+ServiceVocabularyFileName =  "lk_vectorizer_service.joblib"
+ServiceFeatureFileName = "service_features_pca_selectkbest.joblib"
+ServiceClassifierFileName = "svmlk_service_classifier.joblib"
 
-CostVocabularyFileName = "lk_vectorizer_cost.pkl"
-CostFeatureFileName =  "cost_features_pca_selectkbest.pkl"
-CostClassifierFileName = "svmlk_cost_classifier.pkl"
+CostVocabularyFileName = "lk_vectorizer_cost.joblib"
+CostFeatureFileName =  "cost_features_pca_selectkbest.joblib"
+CostClassifierFileName = "svmlk_cost_classifier.joblib"
 
-AmbienceVocabularyFileName = "lk_vectorizer_ambience.pkl"
-AmbienceFeatureFileName = "ambience_features_pca_selectkbest.pkl"
-AmbienceClassifierFileName = "svmlk_ambience_classifier.pkl"
-
+AmbienceVocabularyFileName = "lk_vectorizer_ambience.joblib"
+AmbienceFeatureFileName = "ambience_features_pca_selectkbest.joblib"
+AmbienceClassifierFileName = "svmlk_ambience_classifier.joblib"
 
 tags = ['cuisine', 'service', 'food', 'menu', 'overall', 'cost', 'place',
         'ambience', 'null']
